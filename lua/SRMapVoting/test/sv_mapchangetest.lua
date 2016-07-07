@@ -13,13 +13,13 @@ end
 
 local function excludemapspec()
   local map = "gm_testmap"
-  local mapvotestable = {}
+  local mapVotesTable = {}
   local probabilitytable = {}
-  mapvotestable[map] = {}
-  mapvotestable[map].upvotes = 1
-  mapvotestable[map].downvotes = 100
+  mapVotesTable[map] = {}
+  mapVotesTable[map].upvotes = 1
+  mapVotesTable[map].downvotes = 100
   probabilitytable[map] = 0
-  UpOrDownVoting.excludeMaps(probabilitytable, mapvotestable)
+  UpOrDownVoting.excludeMaps(probabilitytable, mapVotesTable)
   GUnit.assert(probabilitytable[map]):isNil()
 end
 

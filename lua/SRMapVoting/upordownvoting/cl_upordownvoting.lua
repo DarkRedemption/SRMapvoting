@@ -32,6 +32,7 @@ end
 hook.Add("OnPlayerChat", "mapvotingcommandcheck", function(ply, text, team, isDead)
     if ply:IsUserGroup("user") then
       chat.AddText(red, "You must be a member of this community before you can vote on maps.")
+      return true
     elseif UpOrDownVoting.checkForVoteCommand(ply, text) or UpOrDownVoting.checkForVoteTotalCommand(ply, text) then 
       return true 
     end
@@ -78,7 +79,7 @@ end
 
 if CLIENT then
   timer.Simple(5, function()
-    chat.AddText(red, "This server is running SR_MapVoting " .. DDD.version .. ".")
+    chat.AddText(red, "This server is running SR_MapVoting " .. UpOrDownVoting.version .. ".")
     chat.AddText(red, "Type ", yellow, "!upvote", red, " to see this map more often, or ", yellow, "!downvote", red, " if you want to see it less.")
   end)
 end

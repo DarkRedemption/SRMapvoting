@@ -8,7 +8,7 @@ local nextmap = ""
 local switchmap = false
 
 local playercount = #player.GetAll()
-local currentplayercount = #player.GetAll()
+local lastKnownPlayerCount = #player.GetAll()
 
 local time_left = math.max(0, (GetConVar("ttt_time_limit_minutes"):GetInt() * 60) - CurTime())
 local rounds_left = math.max(0, GetGlobalInt("ttt_rounds_left", 6) - 1)
@@ -30,11 +30,11 @@ end
 local function switchMap()
   if switchmap then
     timer.Stop("end2prep")
-    timer.Simple(15, RunConsoleCommand ("changelevel", nextmap))
+    timer.Simple(10, RunConsoleCommand ("changelevel", nextmap))
   else
-  LANG.Msg("limit_left", {num = rounds_left,
-                          time = math.ceil(time_left / 60),
-                          mapname = nextmap})
+    LANG.Msg("limit_left", {num = rounds_left,
+                            time = math.ceil(time_left / 60),
+                            mapname = nextmap})
   end
 end
 
@@ -43,37 +43,21 @@ local function recalculate()
   UpOrDownVoting.changeNextMapDueToPlayerCount()
 end
 
-hook.Add("PlayerInitialSpawn", function()
-    recalculate()
-end)
-
-hook.Add("PlayerDisconnected", function()
-    recalculate()
-end)
-
-hook.Add("TTTPrepareRound", function()
-  UpOrDownVoting.mapChangeCheckAndSet()
-end)
-
--- A central function that should probably be based on returned true, false, or nil values in the following functions.
-function UpOrDownVoting.mapChangeCheckAndSet() 
-  currentplayercount = playercount
-  UpOrDownVoting.checkForMinMaxTable()
+function UpOrDownVoting.changeNextMapDueToPlayerCount()
+  if nextmap == "" or nextmap == nil or 
+  (playercount ~= lastKnownPlayerCount and
+  (mapMinMaxTable[nextmap]["minplayers"] <= playercount or mapMinMaxTable[nextmap]["maxplayers"] >= playercount)) then
+    local maplist = UpOrDownVoting.createViableMapsTable()
+    UpOrDownVoting.setRandomNextMapFromList(maplist)
+  end
+  lastKnownPlayerCount = playercount
 end
 
 function UpOrDownVoting.checkForMinMaxTable()
   if mapMinMaxTable == nil then
-    print ("ERROR, server admin should ensure that the addon is installed correctly. sv_minmaxconfig.lua cannot be found in     addons/SRMapVoting/lua/config/.") 
+    print ("ERROR, server admin should ensure that the addon is installed correctly.") 
   else
     UpOrDownVoting.createViableMapsTable()
-  end
-end
-
-function UpOrDownVoting.changeNextMapDueToPlayerCount()
-  if playercount ~= currentplayercount and 
-  (mapMinMaxTable[nextmap]["minplayers"] <= currentplayercount or mapMinMaxTable[nextmap]["maxplayers"] >= currentplayercount) then
-    local maplist = UpOrDownVoting.createViableMapsTable()
-    UpOrDownVoting.setRandomNextMapFromList(maplist)
   end
 end
 
@@ -104,8 +88,9 @@ local function buildSelectionTable(selectionTable, probabilityTable)
     local min = previousmax
     local max = min + 100 + modifier
     previousmax = max + 1
-    selectiontable[mapname]["min"] = min
-    selectiontable[mapname]["max"] = max
+    selectionTable[mapname] = {}
+    selectionTable[mapname]["min"] = min
+    selectionTable[mapname]["max"] = max
   end
   return previousmax
 end
@@ -125,7 +110,7 @@ function UpOrDownVoting.setRandomNextMapFromList(maplist) -- Sets the next map b
     
     local previousmax = buildSelectionTable(selectionTable, probabilityTable)
     local nextmapnumber = math.random() % previousmax -- Sets probability
-    
+    PrintTable(selectionTable)
     for mapname, range in pairs(selectionTable) do
       if nextmapnumber >= range.min and nextmapnumber <= range.max then
         nextmap = mapname
@@ -139,6 +124,36 @@ function UpOrDownVoting.setRandomNextMapFromList(maplist) -- Sets the next map b
     end
   end
 end
+
+hook.Add("PlayerInitialSpawn", "SRMapVoting_PlayerSpawnRecalculate", function(ply)
+    recalculate()
+end)
+
+hook.Add("PlayerDisconnected", "SRMapVoting_PlayerDisconnectRecalculate", function(ply)
+    recalculate()
+end)
+
+hook.Add("Initialize", "SRMapVoting_Initialize", function()
+  UpOrDownVoting.checkForMinMaxTable()
+end)
+
+hook.Add("TTTEndRound", "SRMapVoting_EndRound", function(result)
+  UpOrDownVoting.checkForMinMaxTable()
+  print(nextmap)
+  print(nextmap)
+  print(nextmap)
+  print(nextmap)
+  print(nextmap)
+  
+end)
+
+--Override original TTT behavior.
+  function CheckForMapSwitch()
+    print("\n\n\noverride successful\n\n\n")
+    checkForLastRound()
+    switchMap()
+  end
+  
 --[[Get the viable maps from the array each round 
 Change the next map set on the server based on playercount, ranking, and overall probability -> SQL Queries
 Reshuffle and announce a new map if the playercount has changed out of minmax -> Chat/TopRightCorner Announcements
