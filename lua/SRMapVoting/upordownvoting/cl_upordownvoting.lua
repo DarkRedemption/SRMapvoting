@@ -4,14 +4,22 @@ local red = Color(255, 0, 0, 255)
 local yellow = Color(255, 255, 0, 255)
 local green = Color(0, 255, 0, 255)
 
+local function checkForTag(ply)
+  if ply:IsUserGroup("user") then
+    chat.AddText(red, "You must be a member of this community before you can vote on maps.")
+    return false
+  end
+  return true
+end
+
 function UpOrDownVoting.checkForVoteCommand(ply, text) -- Checks chat for relevant upvote/downvote commands when a player chats
   if text:len()<7 or text:len()>9 then return false end
-  if text=="!upvote" then
+  if text=="!upvote" and checkForTag(ply) then
     net.Start("SR_UpVotes")
     net.SendToServer()
     chat.AddText(green, "Your vote for this map has been set as an upvote.")
     return true
-  elseif text=="!downvote" then
+  elseif text=="!downvote" and checkForTag(ply) then
     net.Start("SR_DownVotes")
     net.SendToServer()
     chat.AddText(red, "Your vote for this map has been set as a downvote.")
@@ -30,10 +38,7 @@ function UpOrDownVoting.checkForVoteTotalCommand(ply, text) -- Checks chat for l
 end
 
 hook.Add("OnPlayerChat", "mapvotingcommandcheck", function(ply, text, team, isDead)
-    if ply:IsUserGroup("user") then
-      chat.AddText(red, "You must be a member of this community before you can vote on maps.")
-      return true
-    elseif UpOrDownVoting.checkForVoteCommand(ply, text) or UpOrDownVoting.checkForVoteTotalCommand(ply, text) then 
+    if UpOrDownVoting.checkForVoteCommand(ply, text) or UpOrDownVoting.checkForVoteTotalCommand(ply, text) then 
       return true 
     end
   end)

@@ -2,9 +2,10 @@
 
 -- These are the initial values for this set of variables.
 
+UpOrDownVoting.nextmap = ""
+
 local map = game.GetMap()
 local mapMinMaxTable = UpOrDownVoting.mapMinMaxTable
-local nextmap = ""
 local switchmap = false
 
 local playercount = #player.GetAll()
@@ -19,10 +20,10 @@ SetGlobalInt("ttt_rounds_left", rounds_left)
 
 local function checkForLastRound()
   if rounds_left <= 0 then
-    LANG.Msg("limit_round", {mapname = nextmap})
+    LANG.Msg("limit_round", {mapname = UpOrDownVoting.nextmap})
     switchmap = true
   elseif time_left <= 0 then
-    LANG.Msg("limit_time", {mapname = nextmap})
+    LANG.Msg("limit_time", {mapname = UpOrDownVoting.nextmap})
     switchmap = true
   end
 end
@@ -30,11 +31,11 @@ end
 local function switchMap()
   if switchmap then
     timer.Stop("end2prep")
-    timer.Simple(10, RunConsoleCommand ("changelevel", nextmap))
+    timer.Simple(10, RunConsoleCommand ("changelevel", UpOrDownVoting.nextmap))
   else
     LANG.Msg("limit_left", {num = rounds_left,
                             time = math.ceil(time_left / 60),
-                            mapname = nextmap})
+                            mapname = UpOrDownVoting.nextmap})
   end
 end
 
@@ -44,11 +45,11 @@ function UpOrDownVoting.recalculate()
 end
 
 function UpOrDownVoting.changeNextMapDueToPlayerCount()
-  if nextmap == "" or nextmap == nil or 
+  if UpOrDownVoting.nextmap == "" or UpOrDownVoting.nextmap == nil or 
   (playercount ~= lastKnownPlayerCount and
-  (mapMinMaxTable[nextmap]["minplayers"] <= playercount or mapMinMaxTable[nextmap]["maxplayers"] >= playercount)) then
+  (mapMinMaxTable[UpOrDownVoting.nextmap]["minplayers"] <= playercount or mapMinMaxTable[UpOrDownVoting.nextmap]["maxplayers"] >= playercount)) then
     local maplist = UpOrDownVoting.createViableMapsTable()
-    UpOrDownVoting.setRandomNextMapFromList(maplist)
+    UpOrDownVoting.nextmap = UpOrDownVoting.setRandomNextMapFromList(maplist)
   end
   lastKnownPlayerCount = playercount
 end
@@ -139,17 +140,11 @@ end)
 
 hook.Add("TTTEndRound", "SRMapVoting_EndRound", function(result)
   UpOrDownVoting.checkForMinMaxTable()
-  print(nextmap)
-  print(nextmap)
-  print(nextmap)
-  print(nextmap)
-  print(nextmap)
-  
+  UpOrDownVoting.recalculate()
 end)
 
 --Override original TTT behavior.
   function CheckForMapSwitch()
-    print("\n\n\noverride successful\n\n\n")
     checkForLastRound()
     switchMap()
   end

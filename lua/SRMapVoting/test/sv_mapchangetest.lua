@@ -11,7 +11,7 @@ local function nextmapspec()
   GUnit.assert(currentmap):shouldNotEqual(nextmap)
   print("printing maplist")
   PrintTable(maplist)
-  print(nextmap)
+  print(UpOrDownVoting.nextmap)
 end
 
 local function excludemapspec()
