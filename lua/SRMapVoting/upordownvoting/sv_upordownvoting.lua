@@ -2,8 +2,6 @@ local map=game.GetMap()
 
 local tablename="SR_MapVotingTable"
 
-mapvotes = {}
-
 local function createMapVotingTable()
   local query="create table " .. tablename .. " (id INTEGER PRIMARY KEY, mapname string not null, steamid string not null, votetype integer not null)"
   sql.Query(query)
@@ -48,41 +46,43 @@ net.Receive( "SR_DownVotes", function( len, ply )
     voteChange(ply, 0)
 end)
 
-function gatherMapRankings(cmd, args, argstr)
-local query1="SELECT DISTINCT mapname FROM SR_MapVotingTable"
-local result1 = sql.Query(query1)
+function UpOrDownVoting.gatherMapRankings()
+  local mapvotes = {}
+  
+  local query1="SELECT DISTINCT mapname FROM SR_MapVotingTable"
+  local result1 = sql.Query(query1)
 
-local query2="SELECT mapname, COUNT(*) as upVoteCount FROM ".. tablename .." WHERE votetype == 1 GROUP BY mapname"
-local result2 = sql.Query(query2)
+  local query2="SELECT mapname, COUNT(*) as upVoteCount FROM ".. tablename .." WHERE votetype == 1 GROUP BY mapname"
+  local result2 = sql.Query(query2)
 
-local query3="SELECT mapname, COUNT(*) as downVoteCount FROM ".. tablename .." WHERE votetype == 0 GROUP BY mapname"
-local result3 = sql.Query(query3)
+  local query3="SELECT mapname, COUNT(*) as downVoteCount FROM ".. tablename .." WHERE votetype == 0 GROUP BY mapname"
+  local result3 = sql.Query(query3)
 
-if result1 ~= nil then
-  for row, columns in pairs(result1) do
-  mapvotes[columns["mapname"]] = {
-  total = 0,
-  upvotes = 0,
-  downvotes = 0
-  }
+  if result1 ~= nil then
+    for row, columns in pairs(result1) do
+      mapvotes[columns["mapname"]] = {
+        total = 0,
+        upvotes = 0,
+        downvotes = 0
+      }
   end
 end
 
- if result2 ~= nil then
-  for row, columns in pairs(result2) do 
-  mapvotes[columns["mapname"]]["upvotes"] = columns["upVoteCount"]
-  mapvotes[columns["mapname"]]["total"] = mapvotes[columns["mapname"]]["total"] + columns["upVoteCount"]
+    if result2 ~= nil then
+      for row, columns in pairs(result2) do 
+      mapvotes[columns["mapname"]]["upvotes"] = columns["upVoteCount"]
+      mapvotes[columns["mapname"]]["total"] = mapvotes[columns["mapname"]]["total"] + columns["upVoteCount"]
+    end
   end
-end
 
- if result3 ~= nil then
-  for row, columns in pairs(result3) do 
-  mapvotes[columns["mapname"]]["downvotes"] = columns["downVoteCount"]
-  mapvotes[columns["mapname"]]["total"] = mapvotes[columns["mapname"]]["total"] - columns["downVoteCount"]
+    if result3 ~= nil then
+      for row, columns in pairs(result3) do 
+      mapvotes[columns["mapname"]]["downvotes"] = columns["downVoteCount"]
+      mapvotes[columns["mapname"]]["total"] = mapvotes[columns["mapname"]]["total"] - columns["downVoteCount"]
+    end
   end
-end
 
-return mapvotes
+  return mapvotes
 end
 
 util.AddNetworkString("SR_MapVotes")
@@ -100,14 +100,10 @@ net.Receive( "SR_MapVotes", function( len, ply ) --Either pass in two parameters
   end)
 
 net.Receive( "SR_GetRankings", function( len, ply )
-    local rankings = gatherMapRankings()
+    local rankings = UpOrDownVoting.gatherMapRankings()
     net.Start ("SR_ReceiveRankings")
     net.WriteTable(rankings)
     net.Send(ply)
 end)
-
---[[net.Recieve( "SR_ClearVotesCommand", function( len, ply )
-  
-end)]]
 
 createMapVotingTable()

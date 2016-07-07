@@ -10,15 +10,14 @@ local switchmap = false
 local playercount = #player.GetAll()
 local currentplayercount = #player.GetAll()
 
-
 local time_left = math.max(0, (GetConVar("ttt_time_limit_minutes"):GetInt() * 60) - CurTime())
 local rounds_left = math.max(0, GetGlobalInt("ttt_rounds_left", 6) - 1)
 
 SetGlobalInt("ttt_rounds_left", rounds_left)
 
 ------------------------------------------------------------------------------------
--- FIND OUT IF THIS WILL OVERRIDE ANY OTHER GLOBAL FUNCTIONS THAT THESE WERE MODELED AFTER.
-local function checkForLastRound() -- FIND OUT IF CHECKFORLASTROUND AND SWITCHMAP ARE GLOBAL OR LOCAL FUNCTIONS -- ShouldMapSwitch() is local and set to always true. CheckForMapSwitch is global.
+
+local function checkForLastRound()
   if rounds_left <= 0 then
     LANG.Msg("limit_round", {mapname = nextmap})
     switchmap = true
@@ -39,42 +38,53 @@ local function switchMap()
   end
 end
 
+local function recalculate()
+  playercount = #player.GetAll()
+  UpOrDownVoting.changeNextMapDueToPlayerCount()
+end
+
+hook.Add("PlayerInitialSpawn", function()
+    recalculate()
+end)
+
+hook.Add("PlayerDisconnected", function()
+    recalculate()
+end)
+
 hook.Add("TTTPrepareRound", function()
   UpOrDownVoting.mapChangeCheckAndSet()
 end)
 
-function UpOrDownVoting.changeNextMapDueToPlayerCount()
-  if playercount ~= currentplayercount and 
-  (mapMinMaxTable[nextmap]["minplayers"] <= playercount or mapMinMaxTable[nextmap]["maxplayers"] >= playercount) then
-    createViableMapsTable()
-  end
-end
-
-function UpOrDownVoting.createViableMapsTable()
-  maplist[columns["mapname"]] = {
-    total = 0
-    }
-  for mapname, minmax in pairs(mapMinMaxTable) do -- Add to own function?
-    if minmax["minplayers"] >= playercount and minmax["maxplayers"] <= playercount then
-      table.insert(maplist, #list+1, mapname)
-    else
-      UpOrDownVoting.changeNextMapDueToPlayerCount()
-    end
-  end
-  UpOrDownVoting.setRandomNextMapFromList()
+-- A central function that should probably be based on returned true, false, or nil values in the following functions.
+function UpOrDownVoting.mapChangeCheckAndSet() 
+  currentplayercount = playercount
+  UpOrDownVoting.checkForMinMaxTable()
 end
 
 function UpOrDownVoting.checkForMinMaxTable()
   if mapMinMaxTable == nil then
-    print ("ERROR, server admin should ensure that the addon is installed correctly. sv_minmaxconfig.lua cannot be found in addons/SRMapVoting/lua/config/.") 
+    print ("ERROR, server admin should ensure that the addon is installed correctly. sv_minmaxconfig.lua cannot be found in     addons/SRMapVoting/lua/config/.") 
   else
     UpOrDownVoting.createViableMapsTable()
   end
 end
 
-function UpOrDownVoting.mapChangeCheckAndSet() -- A central function that should probably be based on returned true, false, or nil values in the following functions.
-  currentplayercount = playercount
-  UpOrDownVoting.checkForMinMaxTable()
+function UpOrDownVoting.changeNextMapDueToPlayerCount()
+  if playercount ~= currentplayercount and 
+  (mapMinMaxTable[nextmap]["minplayers"] <= currentplayercount or mapMinMaxTable[nextmap]["maxplayers"] >= currentplayercount) then
+    local maplist = UpOrDownVoting.createViableMapsTable()
+    UpOrDownVoting.setRandomNextMapFromList(maplist)
+  end
+end
+
+function UpOrDownVoting.createViableMapsTable()
+  local maplist = {}
+  for mapname, minmax in pairs(UpOrDownVoting.mapMinMaxTable) do -- Add to own function?
+    if minmax["minplayers"] >= playercount and minmax["maxplayers"] <= playercount then
+      table.insert(maplist, mapname)
+    end
+  end
+  return maplist
 end
 
 function UpOrDownVoting.excludeMaps(probabilitytable, mapvotesref)
@@ -88,30 +98,41 @@ function UpOrDownVoting.excludeMaps(probabilitytable, mapvotesref)
   end
 end
 
-function UpOrDownVoting.setRandomNextMapFromList() -- Sets the next map based on a modified probability
+local function buildSelectionTable(selectionTable, probabilityTable)
+  local previousmax = 0
+  for mapname, modifier in pairs(probabilityTable) do
+    local min = previousmax
+    local max = min + 100 + modifier
+    previousmax = max + 1
+    selectiontable[mapname]["min"] = min
+    selectiontable[mapname]["max"] = max
+  end
+  return previousmax
+end
+
+function UpOrDownVoting.setRandomNextMapFromList(maplist) -- Sets the next map based on a modified probability
   local nextmap = ""
-  if mapMinMaxTable ~= nil then
-    local probabilitytable = {}
-    local selectiontable = {}
-    for mapname, v in pairs(maplist) do
-      probabilitytable[mapname] = 0
+  if maplist ~= nil then
+    local probabilityTable = {}
+    local selectionTable = {}
+    local mapVotesRef = UpOrDownVoting.gatherMapRankings()
+    
+    for key, mapname in pairs(maplist) do
+      probabilityTable[mapname] = 0
     end
-    UpOrDownVoting.excludeMaps(probabilitytable, mapvotesref)
-    local previousmax = 0
-    for mapname, modifier in pairs(probabilitytable) do
-      local min = previousmax
-      local max = min+100+modifier
-      previousmax = max+1
-      selectiontable[mapname]["min"] = min
-      selectiontable[mapname]["max"] = max
-    end
-    local nextmapnumber = math.random() %previousmax -- Sets probability
-    for mapname, range in pairs(selectiontable) do
+    
+    UpOrDownVoting.excludeMaps(probabilityTable, mapVotesRef)
+    
+    local previousmax = buildSelectionTable(selectionTable, probabilityTable)
+    local nextmapnumber = math.random() % previousmax -- Sets probability
+    
+    for mapname, range in pairs(selectionTable) do
       if nextmapnumber >= range.min and nextmapnumber <= range.max then
         nextmap = mapname
         break
       end
     end
+    
     if nextmap == map then
       return UpOrDownVoting.setRandomNextMapFromList() else
       return nextmap
