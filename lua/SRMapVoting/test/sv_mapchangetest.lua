@@ -1,7 +1,7 @@
 local mapchangetest = GUnit.Test:new("mapchange")
 
 local function nextmapspec()
-  UpOrDownVoting.mapChangeCheckAndSet()
+  UpOrDownVoting.checkForMinMaxTable()
   
   local currentmap = game.GetMap()
   local maplist = UpOrDownVoting.createViableMapsTable()
@@ -9,6 +9,9 @@ local function nextmapspec()
 
   GUnit.assert(nextmap):isNotNil()
   GUnit.assert(currentmap):shouldNotEqual(nextmap)
+  print("printing maplist")
+  PrintTable(maplist)
+  print(nextmap)
 end
 
 local function excludemapspec()

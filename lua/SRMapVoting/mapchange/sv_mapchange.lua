@@ -38,7 +38,7 @@ local function switchMap()
   end
 end
 
-local function recalculate()
+function UpOrDownVoting.recalculate()
   playercount = #player.GetAll()
   UpOrDownVoting.changeNextMapDueToPlayerCount()
 end
@@ -63,8 +63,8 @@ end
 
 function UpOrDownVoting.createViableMapsTable()
   local maplist = {}
-  for mapname, minmax in pairs(UpOrDownVoting.mapMinMaxTable) do -- Add to own function?
-    if minmax["minplayers"] >= playercount and minmax["maxplayers"] <= playercount then
+  for mapname, minmax in pairs(UpOrDownVoting.mapMinMaxTable) do
+    if minmax["minplayers"] <= playercount and minmax["maxplayers"] >= playercount then
       table.insert(maplist, mapname)
     end
   end
@@ -109,8 +109,8 @@ function UpOrDownVoting.setRandomNextMapFromList(maplist) -- Sets the next map b
     UpOrDownVoting.excludeMaps(probabilityTable, mapVotesRef)
     
     local previousmax = buildSelectionTable(selectionTable, probabilityTable)
-    local nextmapnumber = math.random() % previousmax -- Sets probability
-    PrintTable(selectionTable)
+    local int32max = 2147483647
+    local nextmapnumber = math.random(0, int32max) % previousmax -- Sets probability
     for mapname, range in pairs(selectionTable) do
       if nextmapnumber >= range.min and nextmapnumber <= range.max then
         nextmap = mapname
@@ -118,19 +118,19 @@ function UpOrDownVoting.setRandomNextMapFromList(maplist) -- Sets the next map b
       end
     end
     
-    if nextmap == map then
-      return UpOrDownVoting.setRandomNextMapFromList() else
+    if nextmap == map and #maplist > 1 then
+      return UpOrDownVoting.setRandomNextMapFromList(maplist) else
       return nextmap
     end
   end
 end
 
 hook.Add("PlayerInitialSpawn", "SRMapVoting_PlayerSpawnRecalculate", function(ply)
-    recalculate()
+    UpOrDownVoting.recalculate()
 end)
 
 hook.Add("PlayerDisconnected", "SRMapVoting_PlayerDisconnectRecalculate", function(ply)
-    recalculate()
+    UpOrDownVoting.recalculate()
 end)
 
 hook.Add("Initialize", "SRMapVoting_Initialize", function()
