@@ -1,6 +1,5 @@
-timer.Simple(1, function() print("test") end)
-
 UpOrDownVoting = {}
+UpOrDownVoting.version = "0.1.0"
 
 if SERVER then
   AddCSLuaFile("SRMapVoting/upordownvoting/cl_upordownvoting.lua")
@@ -10,6 +9,6 @@ if SERVER then
   include("SRMapVoting/test/sv_testinit.lua")
 end
 
-if CLIENT then 
+if CLIENT then
   include("SRMapVoting/upordownvoting/cl_upordownvoting.lua")
 end 

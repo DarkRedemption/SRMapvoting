@@ -1,18 +1,26 @@
-function checkForVoteCommand(ply, text) -- Checks chat for relevant upvote/downvote commands when a player chats
+local tablename="SR_MapVotingTable"
+
+local red = Color(255, 0, 0, 255)
+local yellow = Color(255, 255, 0, 255)
+local green = Color(0, 255, 0, 255)
+
+function UpOrDownVoting.checkForVoteCommand(ply, text) -- Checks chat for relevant upvote/downvote commands when a player chats
   if text:len()<7 or text:len()>9 then return false end
   if text=="!upvote" then
     net.Start("SR_UpVotes")
     net.SendToServer()
+    chat.AddText(green, "Your vote for this map has been set as an upvote.")
     return true
   elseif text=="!downvote" then
     net.Start("SR_DownVotes")
     net.SendToServer()
+    chat.AddText(red, "Your vote for this map has been set as a downvote.")
     return true
   end
   return false
 end
 
-function checkForVoteTotalCommand(ply, text) -- Checks chat for list command when a player chats
+function UpOrDownVoting.checkForVoteTotalCommand(ply, text) -- Checks chat for list command when a player chats
   if text:len()==9 and text=="!mapvotes" then
     net.Start("SR_MapVotes")
     net.SendToServer()
@@ -21,21 +29,13 @@ function checkForVoteTotalCommand(ply, text) -- Checks chat for list command whe
   return false
 end
 
---[[function checkForClearVotesCommand(ply,text) -- Checks chat for an admininistrator's command
-  if text:len()>=8 and text=="!clearvotes *" then
-    net.Start("SR_ClearVotesCommand")
-    net.SendToServer()
-    return true
-  end
-  return false
-end]]
-
 hook.Add("OnPlayerChat", "mapvotingcommandcheck", function(ply, text, team, isDead)
-    if checkForVoteCommand(ply, text) or checkForVoteTotalCommand(ply, text) then return true end
+    if ply:IsUserGroup("user") then
+      chat.AddText(red, "You must be a member of this community before you can vote on maps.")
+    elseif UpOrDownVoting.checkForVoteCommand(ply, text) or UpOrDownVoting.checkForVoteTotalCommand(ply, text) then 
+      return true 
+    end
   end)
-
-local map=game.GetMap()
-local tablename="SR_MapVotingTable"
   
 local function getRankingsFromServer() -- Gets all map ranking information and creates a GUI containing this information
   net.Start("SR_GetRankings")
@@ -71,8 +71,15 @@ local function getRankingsFromServer() -- Gets all map ranking information and c
     AppList:AddColumn( "Downvotes" )
     
     for mapname, columns in pairs(mapvotes) do
-    AppList:AddLine(mapname, tonumber(mapvotes[mapname]["total"]), tonumber(mapvotes[mapname]["upvotes"]), tonumber(mapvotes[mapname]["downvotes"]))
+      AppList:AddLine(mapname, tonumber(mapvotes[mapname]["total"]), tonumber(mapvotes[mapname]["upvotes"]), tonumber(mapvotes[mapname]["downvotes"]))
     end
+  end)
+end
+
+if CLIENT then
+  timer.Simple(5, function()
+    chat.AddText(red, "This server is running SR_MapVoting " .. DDD.version .. ".")
+    chat.AddText(red, "Type ", yellow, "!upvote", red, " to see this map more often, or ", yellow, "!downvote", red, " if you want to see it less.")
   end)
 end
 
