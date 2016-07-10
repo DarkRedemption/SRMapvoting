@@ -25,7 +25,7 @@ end
 local function updateVote(ply, votetype)
   local query ="update " .. tablename .. " set votetype= " .. votetype .. " where mapname==\"" .. map .. "\" and steamid==\"" .. ply:SteamID() .. "\""
   sql.Query(query)
-  end
+end
 
 local function voteChange(ply, votetype)
   if voteCheck(ply)==-1 then

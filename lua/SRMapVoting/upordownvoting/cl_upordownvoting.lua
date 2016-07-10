@@ -15,14 +15,18 @@ end
 function UpOrDownVoting.checkForVoteCommand(ply, text) -- Checks chat for relevant upvote/downvote commands when a player chats
   if text:len()<7 or text:len()>9 then return false end
   if text=="!upvote" and checkForTag(ply) then
-    net.Start("SR_UpVotes")
-    net.SendToServer()
-    chat.AddText(green, "Your vote for this map has been set as an upvote.")
+    if (LocalPlayer() == ply) then
+      net.Start("SR_UpVotes")
+      net.SendToServer()
+      chat.AddText(green, "Your vote for this map has been set as an upvote.")
+    end
     return true
   elseif text=="!downvote" and checkForTag(ply) then
-    net.Start("SR_DownVotes")
-    net.SendToServer()
-    chat.AddText(red, "Your vote for this map has been set as a downvote.")
+    if (LocalPlayer() == ply) then
+      net.Start("SR_DownVotes")
+      net.SendToServer()
+      chat.AddText(red, "Your vote for this map has been set as a downvote.")
+    end
     return true
   end
   return false
@@ -30,8 +34,10 @@ end
 
 function UpOrDownVoting.checkForVoteTotalCommand(ply, text) -- Checks chat for list command when a player chats
   if text:len()==9 and text=="!mapvotes" then
-    net.Start("SR_MapVotes")
-    net.SendToServer()
+    if (LocalPlayer() == ply) then
+      net.Start("SR_MapVotes")
+      net.SendToServer()
+    end
     return true
   end
   return false
@@ -83,9 +89,10 @@ local function getRankingsFromServer() -- Gets all map ranking information and c
 end
 
 if CLIENT then
-  timer.Simple(5, function()
+  timer.Simple(600, function()
     chat.AddText(red, "This server is running SR_MapVoting " .. UpOrDownVoting.version .. ".")
     chat.AddText(red, "Type ", yellow, "!upvote", red, " to see this map more often, or ", yellow, "!downvote", red, " if you want to see it less.")
+    chat.AddText(red, "Type ", yellow, "!mapvotes", red, " to see this map's votes.")
   end)
 end
 

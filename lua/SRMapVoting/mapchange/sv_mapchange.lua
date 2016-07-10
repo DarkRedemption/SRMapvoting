@@ -4,15 +4,15 @@
 
 UpOrDownVoting.nextmap = ""
 
-local map = game.GetMap()
-local mapMinMaxTable = UpOrDownVoting.mapMinMaxTable
+local map = ""
+local mapMinMaxTable = {}
 local switchmap = false
 
-local playercount = #player.GetAll()
-local lastKnownPlayerCount = #player.GetAll()
+local playercount = 0
+local lastKnownPlayerCount = 0
 
-local time_left = math.max(0, (GetConVar("ttt_time_limit_minutes"):GetInt() * 60) - CurTime())
-local rounds_left = math.max(0, GetGlobalInt("ttt_rounds_left", 6) - 1)
+local time_left = math.max(0, (GetConVar("ttt_time_limit_minutes"):GetInt() * 60))
+local rounds_left = math.max(0, GetGlobalInt("ttt_rounds_left", 6))
 
 SetGlobalInt("ttt_rounds_left", rounds_left)
 
@@ -31,7 +31,7 @@ end
 local function switchMap()
   if switchmap then
     timer.Stop("end2prep")
-    timer.Simple(10, RunConsoleCommand ("changelevel", UpOrDownVoting.nextmap))
+    timer.Simple(10, function() RunConsoleCommand ("changelevel", UpOrDownVoting.nextmap) end)
   else
     LANG.Msg("limit_left", {num = rounds_left,
                             time = math.ceil(time_left / 60),
@@ -47,7 +47,7 @@ end
 function UpOrDownVoting.changeNextMapDueToPlayerCount()
   if UpOrDownVoting.nextmap == "" or UpOrDownVoting.nextmap == nil or 
   (playercount ~= lastKnownPlayerCount and
-  (mapMinMaxTable[UpOrDownVoting.nextmap]["minplayers"] <= playercount or mapMinMaxTable[UpOrDownVoting.nextmap]["maxplayers"] >= playercount)) then
+  (playercount <= mapMinMaxTable[UpOrDownVoting.nextmap]["minplayers"] or playercount >= mapMinMaxTable[UpOrDownVoting.nextmap]["maxplayers"])) then
     local maplist = UpOrDownVoting.createViableMapsTable()
     UpOrDownVoting.nextmap = UpOrDownVoting.setRandomNextMapFromList(maplist)
   end
@@ -126,28 +126,36 @@ function UpOrDownVoting.setRandomNextMapFromList(maplist) -- Sets the next map b
   end
 end
 
-hook.Add("PlayerInitialSpawn", "SRMapVoting_PlayerSpawnRecalculate", function(ply)
-    UpOrDownVoting.recalculate()
-end)
-
-hook.Add("PlayerDisconnected", "SRMapVoting_PlayerDisconnectRecalculate", function(ply)
-    UpOrDownVoting.recalculate()
-end)
 
 hook.Add("Initialize", "SRMapVoting_Initialize", function()
-  UpOrDownVoting.checkForMinMaxTable()
-end)
-
-hook.Add("TTTEndRound", "SRMapVoting_EndRound", function(result)
-  UpOrDownVoting.checkForMinMaxTable()
+  --Override original TTT behavior.
+  map = game.GetMap()
+  mapMinMaxTable = UpOrDownVoting.mapMinMaxTable
   UpOrDownVoting.recalculate()
-end)
-
---Override original TTT behavior.
+  
   function CheckForMapSwitch()
+    rounds_left = math.max(0, GetGlobalInt("ttt_rounds_left", 6) - 1)
+    SetGlobalInt("ttt_rounds_left", rounds_left)
+    time_left = math.max(0, (GetConVar("ttt_time_limit_minutes"):GetInt() * 60) - CurTime())
+    
     checkForLastRound()
     switchMap()
   end
+  
+  hook.Add("PlayerInitialSpawn", "SRMapVoting_PlayerSpawnRecalculate", function(ply)
+    UpOrDownVoting.recalculate()
+  end)
+
+  hook.Add("PlayerDisconnected", "SRMapVoting_PlayerDisconnectRecalculate", function(ply)
+    UpOrDownVoting.recalculate()
+  end)
+
+  hook.Add("TTTEndRound", "SRMapVoting_EndRound", function(result)
+    UpOrDownVoting.checkForMinMaxTable()
+    UpOrDownVoting.recalculate()
+  end)
+end)
+
   
 --[[Get the viable maps from the array each round 
 Change the next map set on the server based on playercount, ranking, and overall probability -> SQL Queries

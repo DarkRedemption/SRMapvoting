@@ -2,27 +2,27 @@
 
 local mapMinMaxTable = {
   ttt_innocentmotel_v1 = {
-    minplayers = 0,
+    minplayers = 7,
     maxplayers = 14
   },
   ttt_bb_teenroom_b2 = {
     minplayers = 0,
-    maxplayers = 14
+    maxplayers = 16
   },
   ttt_minecraftcity_v4f_r2 = {
     minplayers = 0,
-    maxplayers = 14
+    maxplayers = 12
   },
   ttt_minecraft_b5 = {
     minplayers = 0,
     maxplayers = 7
   },
   ttt_67thway_v14 = {
-    minplayers = 7,
+    minplayers = 8,
     maxplayers = 16
   },
   ttt_rooftops_2016_v1 = {
-    minplayers = 7,
+    minplayers = 8,
     maxplayers = 16
   },
   ttt_community_bowling_v5a = {
@@ -30,31 +30,27 @@ local mapMinMaxTable = {
     maxplayers = 16
   },
   ttt_magma_v2a = {
-    minplayers = 4,
+    minplayers = 7,
     maxplayers = 14
   },
-  ttt_rooftops_2016_v1 = {
-    minplayers = 4,
-    maxplayers = 16
-    },
   ttt_cs_militia = {
-    minplayers = 4,
+    minplayers = 7,
     maxplayers = 14
   },
   ttt_intergalactic = {
-    minplayers = 4,
-    maxplayers = 12
+    minplayers = 7,
+    maxplayers = 14
   },
   ttt_stadium_v2 = {
-    minplayers = 4,
+    minplayers = 7,
     maxplayers = 16
   },
   ttt_dolls_2014_srp1T2 = {
-    minplayers = 4,
+    minplayers = 7,
     maxplayers = 16
   },
   ttt_biostructure = {
-    minplayers = 4,
+    minplayers = 7,
     maxplayers = 12
   },
   ttt_canyon_a4 = {
@@ -62,16 +58,16 @@ local mapMinMaxTable = {
     maxplayers = 20
   },
   ttt_skyscraper_2015_v1g_f2 = {
-    minplayers = 4,
+    minplayers = 7,
     maxplayers = 12
   },
   ttt_metropolis = {
-    minplayers = 4,
+    minplayers = 7,
     maxplayers = 14
   },
   ttt_datmap = {
-    minplayers = 4,
-    maxplayers = 12
+    minplayers = 7,
+    maxplayers = 14
   },
   ttt_college = {
     minplayers = 7,
@@ -85,16 +81,12 @@ local mapMinMaxTable = {
     minplayers = 7,
     maxplayers = 14
   },
-  ttt_floodlights_srp1 = {
-    minplayers = 7,
-    maxplayers = 14
-  },
   ttt_whitehouse_rev_v9 = {
     minplayers = 7,
     maxplayers = 14
   },
   ttt_casino_b2 = {
-    minplayers = 12,
+    minplayers = 14,
     maxplayers = 32
   },
   ttt_bb_schoolsdayv3_r3 = {
@@ -106,7 +98,7 @@ local mapMinMaxTable = {
     maxplayers = 14
   },
   ttt_miami_css = {
-    minplayers = 4,
+    minplayers = 7,
     maxplayers = 14
   },
   ttt_residentevil2_se = {
@@ -118,11 +110,11 @@ local mapMinMaxTable = {
     maxplayers = 16
   },
   ttt_orange_v7 = {
-    minplayers = 4,
+    minplayers = 7,
     maxplayers = 16
   },
   ttt_chaser_v2 = {
-    minplayers = 4,
+    minplayers = 7,
     maxplayers = 14
   },
   ttt_c17ruins = {
@@ -136,6 +128,22 @@ local mapMinMaxTable = {
   ttt_arctic_complex = {
     minplayers = 14,
     maxplayers = 32
+  },
+  ttt_subway_b4_srp5 = {
+    minplayers = 7,
+    maxplayers = 14
+  },
+  ttt_waterworld = {
+    minplayers = 4,
+    maxplayers = 20
+  },
+  ttt_stone_v2 = {
+    minplayers = 8,
+    maxplayers = 16
+  },
+  ttt_parking_alley = {
+    minplayers = 8,
+    maxplayers = 16
   }
 }
 
