@@ -1,4 +1,4 @@
--- To insert new maps, use the template below, deleting each -- at the start of each line. ttt_dolls is used as a functional example.
+-- To insert new maps, use the template below, deleting each -- at the start of each line.
 
 local mapMinMaxTable = {
   ttt_innocentmotel_v1 = {
@@ -7,11 +7,11 @@ local mapMinMaxTable = {
   },
   ttt_bb_teenroom_b2 = {
     minplayers = 0,
-    maxplayers = 16
+    maxplayers = 12
   },
   ttt_minecraftcity_v4f_r2 = {
     minplayers = 0,
-    maxplayers = 12
+    maxplayers = 7
   },
   ttt_minecraft_b5 = {
     minplayers = 0,
@@ -27,7 +27,7 @@ local mapMinMaxTable = {
   },
   ttt_community_bowling_v5a = {
     minplayers = 0,
-    maxplayers = 16
+    maxplayers = 12
   },
   ttt_magma_v2a = {
     minplayers = 7,
@@ -117,10 +117,6 @@ local mapMinMaxTable = {
     minplayers = 7,
     maxplayers = 14
   },
-  ttt_c17ruins = {
-    minplayers = 7,
-    maxplayers = 16
-  },
   ttt_bank_b3 = {
     minplayers = 7,
     maxplayers = 14
@@ -134,16 +130,40 @@ local mapMinMaxTable = {
     maxplayers = 14
   },
   ttt_waterworld = {
-    minplayers = 4,
-    maxplayers = 20
+    minplayers = 0,
+    maxplayers = 14
   },
   ttt_stone_v2 = {
-    minplayers = 8,
+    minplayers = 7,
     maxplayers = 16
   },
   ttt_parking_alley = {
-    minplayers = 8,
+    minplayers = 7,
     maxplayers = 16
+  },
+  cs_office = {
+    minplayers = 7,
+    maxplayers = 16
+  },
+  ttt_highnoon_a5 = {
+    minplayers = 12,
+    maxplayers = 20
+  },
+  ttt_summermansion_b3 = {
+    minplayers = 8,
+    maxplayers = 14
+  },
+  ttt_scarisland_b1 = {
+    minplayers = 12,
+    maxplayers = 20
+  },
+  ttt_oilrig = {
+    minplayers = 10,
+    maxplayers = 16
+  },
+  ttt_abandon_mall_v2 = {
+    minplayers = 14,
+    maxplayers = 32
   }
 }
 

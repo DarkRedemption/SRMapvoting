@@ -7,7 +7,7 @@ local function createMapVotingTable()
   sql.Query(query)
 end
 
-local function addVote(ply, votetype) 
+local function addVote(ply, votetype)
   local query="insert into " .. tablename .. " (mapname,steamid,votetype) values (\"" .. map .. "\", \"" .. ply:SteamID() .. "\", " .. votetype .. ")"
   sql.Query(query)
 end
