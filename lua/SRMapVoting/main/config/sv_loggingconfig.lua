@@ -1,0 +1,1 @@
+UpOrDownVoting.Logging.logLevel = UpOrDownVoting.Logging.LogLevels.Debug

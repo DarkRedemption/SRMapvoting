@@ -18,11 +18,11 @@ local mapMinMaxTable = {
     maxplayers = 7
   },
   ttt_67thway_v14 = {
-    minplayers = 8,
+    minplayers = 4,
     maxplayers = 16
   },
   ttt_rooftops_2016_v1 = {
-    minplayers = 8,
+    minplayers = 4,
     maxplayers = 16
   },
   ttt_community_bowling_v5a = {
@@ -30,7 +30,7 @@ local mapMinMaxTable = {
     maxplayers = 12
   },
   ttt_magma_v2a = {
-    minplayers = 7,
+    minplayers = 4,
     maxplayers = 14
   },
   ttt_cs_militia = {
@@ -46,12 +46,12 @@ local mapMinMaxTable = {
     maxplayers = 16
   },
   ttt_dolls_2014_srp1T2 = {
-    minplayers = 7,
+    minplayers = 0,
     maxplayers = 16
   },
   ttt_biostructure = {
     minplayers = 7,
-    maxplayers = 12
+    maxplayers = 14
   },
   ttt_canyon_a4 = {
     minplayers = 7,
@@ -59,7 +59,7 @@ local mapMinMaxTable = {
   },
   ttt_skyscraper_2015_v1g_f2 = {
     minplayers = 7,
-    maxplayers = 12
+    maxplayers = 14
   },
   ttt_metropolis = {
     minplayers = 7,
@@ -74,8 +74,8 @@ local mapMinMaxTable = {
     maxplayers = 14
   },
   ttt_island_2013 = {
-    minplayers = 7,
-    maxplayers = 14
+    minplayers = 4,
+    maxplayers = 16
   },
   ttt_floodlights_srp1 = {
     minplayers = 7,
@@ -83,7 +83,7 @@ local mapMinMaxTable = {
   },
   ttt_whitehouse_rev_v9 = {
     minplayers = 7,
-    maxplayers = 14
+    maxplayers = 16
   },
   ttt_casino_b2 = {
     minplayers = 14,
@@ -142,7 +142,7 @@ local mapMinMaxTable = {
     maxplayers = 16
   },
   cs_office = {
-    minplayers = 7,
+    minplayers = 4,
     maxplayers = 16
   },
   ttt_highnoon_a5 = {
@@ -150,7 +150,7 @@ local mapMinMaxTable = {
     maxplayers = 20
   },
   ttt_summermansion_b3 = {
-    minplayers = 8,
+    minplayers = 7,
     maxplayers = 14
   },
   ttt_scarisland_b1 = {
@@ -164,6 +164,10 @@ local mapMinMaxTable = {
   ttt_abandon_mall_v2 = {
     minplayers = 14,
     maxplayers = 32
+  },
+  ttt_airbus_b3 = {
+    minplayers = 0,
+    maxplayers = 12
   }
 }
 

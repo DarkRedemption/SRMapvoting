@@ -8,6 +8,8 @@ UpOrDownVoting.nextmap = ""
 UpOrDownVoting.playerCount = 0
 UpOrDownVoting.lastKnownPlayerCount = 0
 
+local log = UpOrDownVoting.Logging
+
 local mapMinMaxTable = UpOrDownVoting.mapMinMaxTable
 local switchmap = false
 
@@ -36,11 +38,11 @@ end
 
 local function switchMap()
   if switchmap then
-    MsgC("Time to switch maps. Switching to: " .. UpOrDownVoting.nextmap)
+    log.logDebug("Time to switch maps. Switching to: " .. UpOrDownVoting.nextmap)
     timer.Stop("end2prep")
     timer.Simple(10, function() RunConsoleCommand ("changelevel", UpOrDownVoting.nextmap) end)
   else
-    MsgC("There is still rounds/time remaining on this map...")
+    log.logDebug("There is still rounds/time remaining on this map...")
     LANG.Msg("limit_left", {num = rounds_left,
                             time = math.ceil(time_left / 60),
                             mapname = UpOrDownVoting.nextmap})
@@ -161,16 +163,23 @@ local function checkForMapSwitch()
   time_left = math.max(0, (GetConVar("ttt_time_limit_minutes"):GetInt() * 60) - CurTime())
     
   UpOrDownVoting.recalculate()
+  log.logDebug("Checking for last round...")
   checkForLastRound()
+  log.logDebug("Checking if we should switch maps...")
   switchMap()
 end
 
 hook.Add("Initialize", "SRMapVoting_Initialize", function()
   --Override original TTT behavior.
   UpOrDownVoting.currentMap = game.GetMap()
-  
-  function CheckForMapSwitch()
-    checkForMapSwitch()
+  CheckForMapSwitch = checkForMapSwitch
+  log.logDebug("\n\nOverrode CheckForMapSwitch\n\n")
+end)
+
+hook.Add("TTTEndRound", "SRMapVoting_EnsureOverride", function()
+  if (CheckForMapSwitch != checkForMapSwitch) then
+    log.logDebug("\n\nRe-Overrode CheckForMapSwitch\n\n")
+    CheckForMapSwitch = checkForMapSwitch
   end
 end)
 
