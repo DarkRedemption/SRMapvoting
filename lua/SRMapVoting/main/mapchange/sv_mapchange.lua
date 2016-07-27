@@ -1,20 +1,20 @@
 -- This section is intended to create a table of maps that are on the server, using the sv_minmaxconfig.lua.
 
--- These are the initial values for this set of variables.
-
--- Putting these values here allow for changes for testing reasons.
-UpOrDownVoting.currentMap = "" 
-UpOrDownVoting.nextmap = ""
-UpOrDownVoting.playerCount = 0
-UpOrDownVoting.lastKnownPlayerCount = 0
-
 local log = UpOrDownVoting.Logging
 
 local mapMinMaxTable = UpOrDownVoting.mapMinMaxTable
 local switchmap = false
 
+-- These are the initial values for this set of variables.
 local time_left = math.max(0, (GetConVar("ttt_time_limit_minutes"):GetInt() * 60))
 local rounds_left = math.max(0, GetGlobalInt("ttt_rounds_left", 6))
+
+-- Putting these values here allow for changes for testing reasons.
+UpOrDownVoting.currentMap = game.GetMap()
+UpOrDownVoting.nextmap = ""
+UpOrDownVoting.playerCount = 0
+UpOrDownVoting.lastKnownPlayerCount = 0
+UpOrDownVoting.currentMapSettings = UpOrDownVoting.mapMinMaxTable[UpOrDownVoting.currentMap]
 
 ------------------------------------------------------------------------------------
 
@@ -40,7 +40,7 @@ local function switchMap()
   if switchmap then
     log.logDebug("Time to switch maps. Switching to: " .. UpOrDownVoting.nextmap)
     timer.Stop("end2prep")
-    timer.Simple(10, function() RunConsoleCommand ("changelevel", UpOrDownVoting.nextmap) end)
+    timer.Simple(15, function() RunConsoleCommand ("changelevel", UpOrDownVoting.nextmap) end)
   else
     log.logDebug("There is still rounds/time remaining on this map...")
     LANG.Msg("limit_left", {num = rounds_left,
@@ -57,18 +57,31 @@ local function playerCountChanged()
   return UpOrDownVoting.playerCount ~= UpOrDownVoting.lastKnownPlayerCount
 end
 
+--Checks to see if the player count is out of range for this map to switch maps faster.
+--PARAM rangeModifier:Integer - How much it should be out of range before decrementing the rounds faster.
+local function currentPlayerCountOutOfRange(rangeModifier)
+  rangeModifier = rangeModifier or 0
+  
+  return UpOrDownVoting.playerCount <= (UpOrDownVoting.currentMapSettings["minplayers"] - rangeModifier) or 
+         UpOrDownVoting.playerCount >= (UpOrDownVoting.currentMapSettings["maxplayers"] + rangeModifier)
+end
+
+--Checks to see if the player count is out of range for the next map.
 local function playerCountOutOfRange()
   return UpOrDownVoting.playerCount <= mapMinMaxTable[UpOrDownVoting.nextmap]["minplayers"] or 
          UpOrDownVoting.playerCount >= mapMinMaxTable[UpOrDownVoting.nextmap]["maxplayers"]
 end
 
 function UpOrDownVoting.recalculate()
-  updatePlayerCount()
   UpOrDownVoting.changeNextMapDueToPlayerCount()
 end
 
 function UpOrDownVoting.changeNextMapDueToPlayerCount()
-  if nextMapDoesNotExist() or (playerCountChanged() and playerCountOutOfRange()) then
+  --This version of the if statement is commented out for now because
+  --I think checking only when it is out of range makes it difficult for some maps to show up.
+
+  --if nextMapDoesNotExist() or (playerCountChanged() and playerCountOutOfRange()) then
+  if nextMapDoesNotExist() or playerCountChanged() then
     local maplist = UpOrDownVoting.createViableMapsTable()
     UpOrDownVoting.nextmap = UpOrDownVoting.randomizeMap(maplist)
   end
@@ -157,8 +170,19 @@ function UpOrDownVoting.excludeMaps(probabilitytable, mapVotesRef)
   end
 end
 
+local function decrementRound()
+  if UpOrDownVoting.currentMapSettings != nil and currentPlayerCountOutOfRange(2) then
+    PrintMessage(HUD_PRINTTALK, "SRMapVoting: Current Map is out of range of its intended population.\nDecrementing rounds by 2.")
+    rounds_left = math.max(0, GetGlobalInt("ttt_rounds_left", 6) - 2)
+  else
+    rounds_left = math.max(0, GetGlobalInt("ttt_rounds_left", 6) - 1)
+  end
+end
+
 local function checkForMapSwitch()
-  rounds_left = math.max(0, GetGlobalInt("ttt_rounds_left", 6) - 1)
+  updatePlayerCount()
+    
+  decrementRound()
   SetGlobalInt("ttt_rounds_left", rounds_left)
   time_left = math.max(0, (GetConVar("ttt_time_limit_minutes"):GetInt() * 60) - CurTime())
     
@@ -171,7 +195,6 @@ end
 
 hook.Add("Initialize", "SRMapVoting_Initialize", function()
   --Override original TTT behavior.
-  UpOrDownVoting.currentMap = game.GetMap()
   CheckForMapSwitch = checkForMapSwitch
   log.logDebug("\n\nOverrode CheckForMapSwitch\n\n")
 end)

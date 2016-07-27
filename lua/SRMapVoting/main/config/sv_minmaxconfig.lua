@@ -15,7 +15,7 @@ local mapMinMaxTable = {
   },
   ttt_minecraft_b5 = {
     minplayers = 0,
-    maxplayers = 7
+    maxplayers = 3
   },
   ttt_67thway_v14 = {
     minplayers = 4,
@@ -31,10 +31,10 @@ local mapMinMaxTable = {
   },
   ttt_magma_v2a = {
     minplayers = 4,
-    maxplayers = 14
+    maxplayers = 16
   },
   ttt_cs_militia = {
-    minplayers = 7,
+    minplayers = 4,
     maxplayers = 14
   },
   ttt_intergalactic = {
@@ -43,7 +43,7 @@ local mapMinMaxTable = {
   },
   ttt_stadium_v2 = {
     minplayers = 7,
-    maxplayers = 16
+    maxplayers = 18
   },
   ttt_dolls_2014_srp1T2 = {
     minplayers = 0,
@@ -89,7 +89,7 @@ local mapMinMaxTable = {
     minplayers = 14,
     maxplayers = 32
   },
-  ttt_bb_schoolsdayv3_r3 = {
+  ttt_bb_schooldayv3_r3 = {
     minplayers = 7,
     maxplayers = 16
   },
@@ -167,7 +167,23 @@ local mapMinMaxTable = {
   },
   ttt_airbus_b3 = {
     minplayers = 0,
-    maxplayers = 12
+    maxplayers = 10
+  },
+  cs_italy = {
+    minplayers = 4,
+    maxplayers = 16
+  },
+  ttt_community_pool_revamped = {
+    minplayers = 7,
+    maxplayers = 16
+  },
+  ttt_fastfood_a6 = {
+    minplayers = 7,
+    maxplayers = 14
+  },
+  ttt_nether = {
+    minplayers = 0,
+    maxplayers = 10
   }
 }
 
